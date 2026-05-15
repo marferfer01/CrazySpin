@@ -99,7 +99,7 @@
     </style>
 </head>
 <body>
-
+    <audio id="wheel-sound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
     <h1 class="header-title">Ruleta Caliente</h1>
 
     <div class="main-container">
@@ -330,9 +330,15 @@
         function devReset() {
             const pin = prompt("Introduce el código de desarrollador:");
             if (pin === "3006") {
-                history = [];
-                localStorage.clear(); // Esto borra el historial Y la bienvenida
-                location.reload();    // Recargamos para que el modal de bienvenida vuelva a saltar
+                // Limpiamos todo el almacenamiento local
+                localStorage.clear();
+                
+                // Opcional: limpiar claves específicas por si acaso
+                localStorage.removeItem('welcomeShown');
+                localStorage.removeItem('rouletteHistory');
+                
+                // Forzamos la recarga de la página ignorando la caché del navegador
+                window.location.href = window.location.pathname + '?refresh=' + Date.now();
             } else {
                 alert("Código incorrecto.");
             }
