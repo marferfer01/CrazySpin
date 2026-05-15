@@ -22,6 +22,16 @@
             background-color: #0a0a0a;
         }
 
+        /* Fuerza el color de fondo en el contenedor raíz para evitar el blanco al deslizar */
+        #app-container, .tab-content {
+            background-color: inherit;
+        }
+
+        /* Evita que Safari haga zoom al clicar botones */
+        input, button {
+            font-size: 16px !important;
+        }
+        
         .tab-content {
             /* Forzamos a que el contenido ocupe el alto dinámico disponible */
             height: 100dvh;
@@ -31,9 +41,28 @@
         }
 
         /* Ajuste para que los botones inferiores tengan aire y no se peguen al borde */
+        /* Ajuste del contenedor de botones inferiores */
         .nav-buttons-container {
-            padding-bottom: 20px; 
-            background: linear-gradient(transparent, #0a0a0a);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* Sumamos el área segura del iPhone + 25px extra para subir el texto */
+            padding-bottom: calc(env(safe-area-inset-bottom) + 25px); 
+            background: linear-gradient(transparent, #0a0a0a 40%);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Aseguramos que los botones tengan un tamaño mínimo para que el texto quepa */
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem; /* Tamaño del texto */
         }
 
         /* Permitir scroll SOLO en la lista del historial */
@@ -291,21 +320,25 @@
         function toggleHotMode() {
             isHotMode = !isHotMode;
             const dotsContainer = document.getElementById('dots-container');
+            const body = document.body;
             
-            // Cambiamos la lista de retos y redibujamos
             currentChallenges = isHotMode ? [...hotChallenges] : [...challenges];
             drawWheel();
 
             if (isHotMode) {
-                // Activamos estética Hot y ocultamos puntos
-                document.body.style.background = "radial-gradient(circle, #2a0000 0%, #000 100%)";
+                // Forzamos primero un color sólido de respaldo y luego el degradado
+                body.style.backgroundColor = "#1a0000"; 
+                body.style.background = "radial-gradient(circle, #4a0000 0%, #000000 100%)";
+                body.style.backgroundAttachment = "fixed"; // Evita que el fondo se mueva en Safari
+                
                 document.getElementById('hot-icon').innerText = '⚡';
-                dotsContainer.classList.add('dots-hidden');
+                if(dotsContainer) dotsContainer.classList.add('dots-hidden');
             } else {
-                // Volvemos a estética Normal y mostramos puntos
-                document.body.style.background = "#0a0a0a";
+                body.style.backgroundColor = "#0a0a0a";
+                body.style.background = "#0a0a0a"; // Volvemos al negro sólido
+                
                 document.getElementById('hot-icon').innerText = '🔥';
-                dotsContainer.classList.remove('dots-hidden');
+                if(dotsContainer) dotsContainer.classList.remove('dots-hidden');
             }
             
             updateUI();
@@ -330,35 +363,40 @@
         function devReset() {
             const pin = prompt("Introduce el código de desarrollador:");
             if (pin === "3006") {
-                // Limpiamos todo el almacenamiento local
+                // Limpiamos absolutamente todo
                 localStorage.clear();
                 
-                // Opcional: limpiar claves específicas por si acaso
-                localStorage.removeItem('welcomeShown');
-                localStorage.removeItem('rouletteHistory');
-                
-                // Forzamos la recarga de la página ignorando la caché del navegador
-                window.location.href = window.location.pathname + '?refresh=' + Date.now();
+                // Redirigimos a la misma URL pero con un parámetro aleatorio
+                // Esto rompe la memoria del navegador y le obliga a empezar de cero
+                const cleanURL = window.location.origin + window.location.pathname;
+                window.location.href = cleanURL + "?reset=" + Math.random();
             } else {
                 alert("Código incorrecto.");
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Comprobamos si ya se ha mostrado la bienvenida
+        // Función para verificar y mostrar la bienvenida
+        function checkWelcome() {
             const hasBeenWelcomed = localStorage.getItem('welcomeShown');
+            const welcomeModal = document.getElementById('welcome-modal');
 
-            if (!hasBeenWelcomed) {
-                const welcomeModal = document.getElementById('welcome-modal');
-                welcomeModal.classList.remove('d-none');
+            if (!hasBeenWelcomed && welcomeModal) {
+                // Un pequeño delay para asegurar que Safari renderice la capa
+                setTimeout(() => {
+                    welcomeModal.classList.remove('d-none');
+                    welcomeModal.style.display = 'flex'; // Forzamos el display por si acaso
+                }, 100);
 
                 document.getElementById('start-game-btn').onclick = () => {
                     welcomeModal.classList.add('d-none');
-                    // Guardamos que ya lo ha visto para siempre
+                    welcomeModal.style.display = 'none';
                     localStorage.setItem('welcomeShown', 'true');
                 };
             }
-        });
+        }
+
+        // Ejecutar al cargar la página
+        document.addEventListener('DOMContentLoaded', checkWelcome);
 
         drawWheel();
         updateUI();
