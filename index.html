@@ -14,134 +14,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
-        :root { 
-            --gold: #D4AF37; 
-            --dark-gold: #996515; 
-            --black: #0a0a0a; 
-            --dark-gray: #1a1a1a; 
-        }
+    :root { 
+        --gold: #D4AF37; 
+        --dark-gold: #996515; 
+        --black: #0a0a0a; 
+        --dark-gray: #1a1a1a; 
+    }
 
-        html, body {
-            height: 100dvh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            background-color: var(--black);
-            color: white;
-            font-family: 'Montserrat', sans-serif;
-        }
+    html, body {
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        background-color: var(--black);
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+    }
 
-        .app-viewport {
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+    .app-viewport {
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        /* Respetamos el área segura pero sin pasarnos */
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 
-        .header-title { 
-            font-family: 'Great Vibes', cursive; 
-            color: var(--gold); 
-            text-align: center; 
-            padding: 20px 0 10px 0; 
-            font-size: 3rem;
-            z-index: 5;
-        }
+    .header-title { 
+        font-family: 'Great Vibes', cursive; 
+        color: var(--gold); 
+        text-align: center; 
+        padding: 15px 0 5px 0; 
+        font-size: 2.5rem;
+        z-index: 5;
+    }
 
-        .main-container { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 10px;
-            margin-bottom: 90px; /* Subimos un poco más para evitar colisión con botones */
-        }
+    .main-container { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 5px;
+        /* Reducimos este margen para que no empuje el botón de girar hacia arriba */
+        margin-bottom: 60px; 
+    }
 
-        .wheel-wrapper { 
-            position: relative; 
-            width: 80vw; 
-            max-width: 320px; 
-            aspect-ratio: 1/1; 
-            margin-bottom: 20px; 
-        }
-        
-        .wheel-pointer { 
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%); 
-            width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; 
-            border-top: 30px solid var(--gold); z-index: 10; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
-        }
+    .wheel-wrapper { 
+        position: relative; 
+        width: 75vw; 
+        max-width: 290px; /* Un pelín más pequeña para ganar aire */
+        aspect-ratio: 1/1; 
+        margin-bottom: 15px; 
+    }
+    
+    .wheel-pointer { 
+        position: absolute; top: -12px; left: 50%; transform: translateX(-50%); 
+        width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; 
+        border-top: 25px solid var(--gold); z-index: 10;
+    }
 
-        canvas { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            border: 5px solid var(--gold); 
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4); 
-            transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); 
-        }
+    canvas { 
+        width: 100%; height: 100%; border-radius: 50%; 
+        border: 4px solid var(--gold); 
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); 
+        transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); 
+    }
 
-        #result-text { 
-            font-size: 1.2rem; text-align: center; color: var(--gold); 
-            min-height: 3rem; font-weight: 700; padding: 0 15px; 
-            text-shadow: 0 0 10px rgba(0,0,0,0.5); 
-        }
+    #result-text { 
+        font-size: 1.1rem; text-align: center; color: var(--gold); 
+        min-height: 2.5rem; font-weight: 700; padding: 0 10px; 
+    }
 
-        .btn-gold { 
-            background: linear-gradient(45deg, var(--dark-gold), var(--gold)); 
-            border: none; color: black; font-weight: bold; 
-            padding: 12px 40px; border-radius: 40px; 
-            text-transform: uppercase; font-size: 1rem; 
-        }
+    .btn-gold { 
+        background: linear-gradient(45deg, var(--dark-gold), var(--gold)); 
+        border: none; color: black; font-weight: bold; 
+        padding: 10px 35px; border-radius: 40px; 
+        text-transform: uppercase; font-size: 0.9rem; 
+    }
 
-        .progress-dots { display: flex; gap: 12px; margin-bottom: 20px; }
-        .dot { width: 12px; height: 12px; border: 1px solid var(--gold); border-radius: 50%; transition: 0.5s; }
-        .dot.active { background-color: var(--gold); box-shadow: 0 0 12px var(--gold); }
+    .progress-dots { display: flex; gap: 10px; margin-bottom: 15px; }
+    .dot { width: 10px; height: 10px; border: 1px solid var(--gold); border-radius: 50%; }
+    .dot.active { background-color: var(--gold); }
 
-        .bottom-nav { 
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--dark-gray); 
-            border-top: 1px solid #333; 
-            display: flex; 
-            justify-content: space-around; 
-            /* REFUERZO PARA SAFARI: Más espacio para el texto inferior */
-            padding: 15px 0 calc(env(safe-area-inset-bottom) + 30px) 0; 
-            z-index: 100;
-        }
+    /* NAVEGACIÓN INFERIOR AJUSTADA */
+    .bottom-nav { 
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--dark-gray); 
+        border-top: 1px solid #333; 
+        display: flex; 
+        justify-content: space-around; 
+        /* Ajuste fino para Safari: lo justo para no tapar el texto pero que no suba tanto */
+        padding: 10px 0 calc(env(safe-area-inset-bottom) + 10px) 0; 
+        z-index: 100;
+    }
 
-        .nav-item { 
-            color: var(--gold); text-decoration: none; font-size: 0.85rem; 
-            text-align: center; cursor: pointer; flex: 1; 
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .nav-item span { font-size: 1.8rem; display: block; margin-bottom: 5px; }
-        .nav-item.disabled { color: #444; pointer-events: none; opacity: 0.3; }
-
-        .screen { 
-            display: none; position: fixed; top: 0; left: 0; 
-            width: 100%; height: 100%; padding: 25px; 
-            background: var(--black); z-index: 1000; 
-        }
-        .screen.active { display: block; }
-
-        #history-list-container {
-            height: 60vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 20px;
-            border-top: 1px solid #333;
-        }
-
-        .dots-hidden { opacity: 0; transition: opacity 0.5s ease; }
-
-        #welcome-modal, #repeat-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: none; align-items: center; justify-content: center;
-            text-align: center; padding: 25px; z-index: 10000;
-        }
-    </style>
+    .nav-item { 
+        color: var(--gold); text-decoration: none; font-size: 0.75rem; 
+        text-align: center; cursor: pointer; flex: 1; 
+    }
+    .nav-item span { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+</style>
 </head>
 <body>
 
