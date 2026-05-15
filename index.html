@@ -12,19 +12,28 @@
         body { background-color: var(--black); color: white; font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
         html, body {
-            height: 100%;
+            /* Usamos dvh para que se adapte dinámicamente a las barras del móvil */
+            height: 100dvh; 
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Evita el scroll en toda la web */
+            overflow: hidden;
             position: fixed;
             width: 100%;
+            background-color: #0a0a0a;
         }
 
-        /* Contenedor principal de las vistas */
         .tab-content {
-            height: 100vh;
+            /* Forzamos a que el contenido ocupe el alto dinámico disponible */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom); /* Espacio extra para el notch inferior de iPhone */
+        }
+
+        /* Ajuste para que los botones inferiores tengan aire y no se peguen al borde */
+        .nav-buttons-container {
+            padding-bottom: 20px; 
+            background: linear-gradient(transparent, #0a0a0a);
         }
 
         /* Permitir scroll SOLO en la lista del historial */
