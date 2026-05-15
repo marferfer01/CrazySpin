@@ -348,12 +348,21 @@
             drawWheel();
 
             if (isHotMode) {
-                // Aplicamos el degradado rojo oscuro
-                body.style.setProperty('background', 'radial-gradient(circle, #4a0000 0%, #000000 100%)', 'important');
+                // Aplicamos la imagen de fondo
+                body.style.backgroundImage = "url('degradado.png')";
+                body.style.backgroundSize = "cover";
+                body.style.backgroundPosition = "center";
+                body.style.backgroundRepeat = "no-repeat";
+                
+                document.getElementById('hot-icon').innerText = '⚡';
+                if(dotsContainer) dotsContainer.classList.add('dots-hidden');
             } else {
-                // Volvemos al negro usando la variable de CSS correctamente como string
-                body.style.removeProperty('background'); // Limpia el degradado para que se vea el color de fondo
+                // Quitamos la imagen y volvemos al color sólido
+                body.style.backgroundImage = "none";
                 body.style.backgroundColor = "var(--black)";
+                
+                document.getElementById('hot-icon').innerText = '🔥';
+                if(dotsContainer) dotsContainer.classList.remove('dots-hidden');
             }
             updateUI();
         }
