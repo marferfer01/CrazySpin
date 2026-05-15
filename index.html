@@ -2,123 +2,90 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- ESTRATEGIA ANTI-CACHÉ: Evita que el navegador guarde la página -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ruleta Caliente</title>
+    <title>Ruleta Caliente v1.2</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
-    :root { 
-        --gold: #D4AF37; 
-        --dark-gold: #996515; 
-        --black: #0a0a0a; 
-        --dark-gray: #1a1a1a; 
-    }
+        :root { --gold: #D4AF37; --dark-gold: #996515; --black: #0a0a0a; --dark-gray: #1a1a1a; }
 
-    html, body {
-        height: 100dvh;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-        background-color: var(--black);
-        color: white;
-        font-family: 'Montserrat', sans-serif;
-    }
+        html, body {
+            height: 100dvh; margin: 0; padding: 0; overflow: hidden;
+            position: fixed; width: 100%; background-color: var(--black);
+            color: white; font-family: 'Montserrat', sans-serif;
+        }
 
-    .app-viewport {
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
-        /* Respetamos el área segura pero sin pasarnos */
-        padding-bottom: env(safe-area-inset-bottom);
-    }
+        .app-viewport {
+            height: 100dvh; display: flex; flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
 
-    .header-title { 
-        font-family: 'Great Vibes', cursive; 
-        color: var(--gold); 
-        text-align: center; 
-        padding: 15px 0 5px 0; 
-        font-size: 2.5rem;
-        z-index: 5;
-    }
+        .header-title { 
+            font-family: 'Great Vibes', cursive; color: var(--gold); 
+            text-align: center; padding: 15px 0 5px 0; font-size: 2.5rem;
+        }
 
-    .main-container { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center; 
-        padding: 5px;
-        /* Reducimos este margen para que no empuje el botón de girar hacia arriba */
-        margin-bottom: 60px; 
-    }
+        .main-container { 
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 5px;
+            margin-bottom: 60px; 
+        }
 
-    .wheel-wrapper { 
-        position: relative; 
-        width: 75vw; 
-        max-width: 290px; /* Un pelín más pequeña para ganar aire */
-        aspect-ratio: 1/1; 
-        margin-bottom: 15px; 
-    }
-    
-    .wheel-pointer { 
-        position: absolute; top: -12px; left: 50%; transform: translateX(-50%); 
-        width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; 
-        border-top: 25px solid var(--gold); z-index: 10;
-    }
+        .wheel-wrapper { 
+            position: relative; width: 75vw; max-width: 280px; 
+            aspect-ratio: 1/1; margin-bottom: 15px; 
+        }
+        
+        .wheel-pointer { 
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%); 
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; 
+            border-top: 25px solid var(--gold); z-index: 10;
+        }
 
-    canvas { 
-        width: 100%; height: 100%; border-radius: 50%; 
-        border: 4px solid var(--gold); 
-        box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); 
-        transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); 
-    }
+        canvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--gold); transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); }
 
-    #result-text { 
-        font-size: 1.1rem; text-align: center; color: var(--gold); 
-        min-height: 2.5rem; font-weight: 700; padding: 0 10px; 
-    }
+        #result-text { font-size: 1.1rem; text-align: center; color: var(--gold); min-height: 2.5rem; font-weight: 700; }
 
-    .btn-gold { 
-        background: linear-gradient(45deg, var(--dark-gold), var(--gold)); 
-        border: none; color: black; font-weight: bold; 
-        padding: 10px 35px; border-radius: 40px; 
-        text-transform: uppercase; font-size: 0.9rem; 
-    }
+        .btn-gold { 
+            background: linear-gradient(45deg, var(--dark-gold), var(--gold)); 
+            border: none; color: black; font-weight: bold; padding: 10px 35px; border-radius: 40px; 
+        }
 
-    .progress-dots { display: flex; gap: 10px; margin-bottom: 15px; }
-    .dot { width: 10px; height: 10px; border: 1px solid var(--gold); border-radius: 50%; }
-    .dot.active { background-color: var(--gold); }
+        .progress-dots { display: flex; gap: 10px; margin-bottom: 15px; }
+        .dot { width: 10px; height: 10px; border: 1px solid var(--gold); border-radius: 50%; }
+        .dot.active { background-color: var(--gold); box-shadow: 0 0 8px var(--gold); }
 
-    /* NAVEGACIÓN INFERIOR AJUSTADA */
-    .bottom-nav { 
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: var(--dark-gray); 
-        border-top: 1px solid #333; 
-        display: flex; 
-        justify-content: space-around; 
-        /* Ajuste fino para Safari: lo justo para no tapar el texto pero que no suba tanto */
-        padding: 10px 0 calc(env(safe-area-inset-bottom) + 10px) 0; 
-        z-index: 100;
-    }
+        /* NAVEGACIÓN INFERIOR */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: var(--dark-gray); border-top: 1px solid #333; 
+            display: flex; justify-content: space-around; 
+            padding: 10px 0 calc(env(safe-area-inset-bottom) + 15px) 0; 
+            z-index: 50; /* Por debajo de las pantallas */
+        }
 
-    .nav-item { 
-        color: var(--gold); text-decoration: none; font-size: 0.75rem; 
-        text-align: center; cursor: pointer; flex: 1; 
-    }
-    .nav-item span { font-size: 1.5rem; display: block; margin-bottom: 2px; }
-</style>
+        .nav-item { color: var(--gold); text-decoration: none; font-size: 0.75rem; text-align: center; cursor: pointer; flex: 1; }
+        .nav-item span { font-size: 1.5rem; display: block; }
+        .nav-item.disabled { color: #444 !important; opacity: 0.4; cursor: default; }
+
+        /* PANTALLAS (HISTORIAL) */
+        .screen { 
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100%; height: 100%; padding: 25px; 
+            background: var(--black); z-index: 2000; /* Siempre arriba al activarse */
+        }
+        .screen.active { display: block; }
+
+        #history-list-container {
+            height: 65vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            margin-top: 15px; border-top: 1px solid #333;
+        }
+
+        .dots-hidden { visibility: hidden; }
+    </style>
 </head>
 <body>
 
@@ -130,13 +97,10 @@
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="600" height="600"></canvas>
             </div>
-
             <div id="result-text">Toca el botón para empezar</div>
-
             <div class="progress-dots" id="dots-container">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
-
             <button id="spin-button" class="btn btn-gold" onclick="spin()">GIRAR</button>
         </div>
 
@@ -148,64 +112,16 @@
 
     <!-- Pantalla Historial -->
     <div id="history-screen" class="screen">
-        <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.5rem; text-align: center;">Nuestra Trayectoria</h2>
+        <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.5rem; text-align: center;">Nuestro Historial</h2>
         <div id="history-list-container"></div>
-        <div class="text-center mt-4">
-            <button onclick="showScreen('home')" class="btn btn-outline-warning">Cerrar</button>
-            <button onclick="devReset()" class="btn btn-link text-danger mt-4 d-block mx-auto" style="text-decoration: none; font-size: 0.8rem; opacity: 0.4;">Limpiar Todo</button>
-        </div>
-    </div>
-
-    <!-- Modal Repetido -->
-    <div id="repeat-modal" style="background: rgba(0,0,0,0.95);">
-        <div style="border: 2px solid var(--gold); padding: 30px; background: #111; border-radius: 15px; max-width: 400px;">
-            <h3 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2rem;">¡Ya salió!</h3>
-            <p style="color: white; margin: 20px 0;">Este reto ya lo habéis hecho anteriormente.</p>
-            <button id="accept-repeat" class="btn btn-outline-warning m-2">Aceptar</button>
-            <button id="re-spin" class="btn btn-warning m-2">Volver a tirar</button>
-        </div>
-    </div>
-
-    <!-- Modal Bienvenida -->
-    <div id="welcome-modal" style="background: #0a0a0a;">
-        <div style="border: 2px solid var(--gold); padding: 40px 20px; background: #111; border-radius: 20px; max-width: 450px;">
-            <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.8rem; margin-bottom: 20px;">Hola Maria,</h2>
-            <p style="color: white; line-height: 1.6; font-size: 1.05rem; margin-bottom: 25px;">
-                Digamos que nos gusta jugar, a muchas cosas... <br><br>
-                Podría decirse que algunas veces rozamos la ludopatía, ya sabes, tarde de ruletita una vez al año no hace daño... <br><br>
-                Bueno, supongo que esta es la ruleta en la que más podemos ganar y en la que no hay nada que perder...<br><br>
-                ¿A disfrutar no?
-            </p>
-            <button id="start-game-btn" class="btn btn-warning" style="padding: 10px 30px; border-radius: 30px; font-weight: bold;">¡A jugar!</button>
+        <div class="text-center mt-3">
+            <button onclick="showScreen('home')" class="btn btn-outline-warning">Volver</button>
         </div>
     </div>
 
     <script>
-        const challenges = [
-            { short: "Nata", full: "Nata por el cuerpo" },
-            { short: "Roles 👮", full: "¿Roleamos?" },
-            { short: "Vendaje", full: "Vendaje en los ojos" },
-            { short: "Aceite", full: "Masaje con aceite" },
-            { short: "Mandas 👑", full: "Hoy tu mandas" },
-            { short: "Ducha 💧", full: "Ducha... Jejeje" },
-            { short: "Streptease 🕺", full: "Streptease Mario" },
-            { short: "Streptease 💃", full: "Streptease Maria" },
-            { short: "Besos ", full: "Matarte a besos" },
-            { short: "Tinieblas ", full: "Encontraros a oscuras" },
-            { short: "Sin manos 🚫", full: "Prohibido usar las manos" },
-            { short: "Silla ", full: "Castigada en una silla" },
-            { short: "Permiso ", full: "Pide permiso a todo" },
-            { short: "Hielo 🧊", full: "Hielo" }
-        ];
-
-        const hotChallenges = [
-            { short: "Atada ⛓️", full: "Totalmente atada" },
-            { short: "Toys 🧸", full: "Juguetes al fallo" },
-            { short: "Duro 🥵", full: "Bien duro" },
-            { short: "Traje", full: "Trajecito bien sexy" },
-            { short: "Squirt 💦", full: "Squirt hasta morir" },
-            { short: "Esclavo 🐶", full: "Esclava/Esclavo" }
-        ];
+        const challenges = [{short:"Nata",full:"Nata por el cuerpo"},{short:"Roles 👮",full:"¿Roleamos?"},{short:"Vendaje",full:"Vendaje en los ojos"},{short:"Aceite",full:"Masaje con aceite"},{short:"Mandas 👑",full:"Hoy tu mandas"},{short:"Ducha 💧",full:"Ducha... Jejeje"},{short:"Streptease 🕺",full:"Streptease Mario"},{short:"Streptease 💃",full:"Streptease Maria"},{short:"Besos ",full:"Matarte a besos"},{short:"Sin manos 🚫",full:"Prohibido usar las manos"},{short:"Silla ",full:"Castigada en una silla"},{short:"Permiso ",full:"Pide permiso a todo"},{short:"Hielo 🧊",full:"Hielo"}];
+        const hotChallenges = [{short:"Atada ⛓️",full:"Totalmente atada"},{short:"Toys 🧸",full:"Juguetes al fallo"},{short:"Duro 🥵",full:"Bien duro"},{short:"Traje",full:"Trajecito bien sexy"},{short:"Squirt 💦",full:"Squirt hasta morir"},{short:"Esclavo 🐶",full:"Esclava/Esclavo"}];
 
         let currentChallenges = [...challenges];
         let history = JSON.parse(localStorage.getItem('rouletteHistory')) || [];
@@ -219,26 +135,16 @@
             const numSegments = currentChallenges.length;
             const angle = 2 * Math.PI / numSegments;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             currentChallenges.forEach((obj, i) => {
                 ctx.save();
                 ctx.translate(300, 300);
                 ctx.rotate(i * angle - Math.PI / 2 - angle / 2);
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.arc(0, 0, 290, 0, angle);
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, 290, 0, angle);
                 ctx.fillStyle = i % 2 === 0 ? "#0a0a0a" : "#1a1a1a";
-                ctx.fill();
-                ctx.strokeStyle = "#D4AF37";
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                ctx.rotate(angle / 2);
-                ctx.fillStyle = "#D4AF37";
-                ctx.font = "bold 24px Montserrat"; 
-                ctx.textAlign = "right";
-                ctx.fillText(obj.short, 250, 10); 
-                ctx.restore();
+                ctx.fill(); ctx.strokeStyle = "#D4AF37"; ctx.stroke();
+                ctx.rotate(angle / 2); ctx.fillStyle = "#D4AF37";
+                ctx.font = "bold 24px Montserrat"; ctx.textAlign = "right";
+                ctx.fillText(obj.short, 250, 10); ctx.restore();
             });
         }
 
@@ -246,63 +152,36 @@
             const btn = document.getElementById('spin-button');
             if (btn.disabled) return;
             btn.disabled = true;
-
             const numSegments = currentChallenges.length;
-            const segmentAngle = 360 / numSegments;
             const winIndex = Math.floor(Math.random() * numSegments);
             const winnerObj = currentChallenges[winIndex];
-
-            const rotationToTarget = (numSegments - winIndex) * segmentAngle;
+            const rotationToTarget = (numSegments - winIndex) * (360 / numSegments);
             currentRotation += 3600 + (rotationToTarget - (currentRotation % 360));
             canvas.style.transform = `rotate(${currentRotation}deg)`;
-
-            setTimeout(() => {
-                const isRepeated = history.some(h => h.challenge === winnerObj.full);
-                if (isRepeated) {
-                    const modal = document.getElementById('repeat-modal');
-                    modal.style.display = 'flex';
-                    document.getElementById('accept-repeat').onclick = () => {
-                        modal.style.display = 'none';
-                        finalizeSpin(winnerObj);
-                    };
-                    document.getElementById('re-spin').onclick = () => {
-                        modal.style.display = 'none';
-                        btn.disabled = false;
-                        document.getElementById('result-text').innerText = "¡OTRA VEZ!";
-                    };
-                } else {
-                    finalizeSpin(winnerObj);
-                }
-            }, 4000);
+            setTimeout(() => { finalizeSpin(winnerObj); btn.disabled = false; }, 4000);
         }
 
         function finalizeSpin(winnerObj) {
             document.getElementById('result-text').innerHTML = "RESULTADO:<br><span style='color:white'>" + winnerObj.full.toUpperCase() + "</span>";
             const now = new Date();
-            history.push({ 
-                date: now.toLocaleDateString() + " " + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), 
-                challenge: winnerObj.full,
-                isHot: isHotMode 
-            });
+            history.push({ date: now.toLocaleString(), challenge: winnerObj.full, isHot: isHotMode });
             localStorage.setItem('rouletteHistory', JSON.stringify(history));
             if (isHotMode) toggleHotMode();
-            document.getElementById('spin-button').disabled = false;
             updateUI();
         }
 
         function updateUI() {
-            const lastHotIndex = [...history].reverse().findIndex(h => h.isHot);
-            const normalSpinsSinceLastHot = lastHotIndex === -1 ? history.length : lastHotIndex;
+            const lastHotIdx = [...history].reverse().findIndex(h => h.isHot);
+            const spinsSinceHot = lastHotIdx === -1 ? history.length : lastHotIdx;
             
             document.querySelectorAll('.dot').forEach((dot, i) => {
-                if (i < normalSpinsSinceLastHot) dot.classList.add('active');
-                else dot.classList.remove('active');
+                i < spinsSinceHot ? dot.classList.add('active') : dot.classList.remove('active');
             });
 
             const hotBtn = document.getElementById('hot-mode-btn');
             const hotIcon = document.getElementById('hot-icon');
 
-            if (normalSpinsSinceLastHot >= 5) {
+            if (spinsSinceHot >= 5) {
                 hotBtn.classList.remove('disabled');
                 if (!isHotMode) hotIcon.innerText = '🔥';
             } else {
@@ -312,63 +191,33 @@
 
             const histCont = document.getElementById('history-list-container');
             histCont.innerHTML = history.slice().reverse().map(h => `
-                <div style="border-bottom:1px solid #333; padding:15px; display:flex; justify-content:space-between; font-size: 0.85rem">
-                    <span style="opacity:0.6">${h.date}</span>
+                <div style="border-bottom:1px solid #333; padding:12px; display:flex; justify-content:space-between; font-size: 0.8rem">
+                    <span style="opacity:0.6">${h.date.split(',')[1]}</span>
                     <span style="color:var(--gold); font-weight:bold">${h.isHot ? '🔥 ' : ''}${h.challenge}</span>
                 </div>`).join('');
         }
 
         function toggleHotMode() {
-            isHotMode = !isHotMode;
-            const dotsContainer = document.getElementById('dots-container');
-            const body = document.body;
+            const spinsSinceHot = [...history].reverse().findIndex(h => h.isHot);
+            const count = spinsSinceHot === -1 ? history.length : spinsSinceHot;
             
+            // Bloqueo de seguridad: Si no hay 5 tiradas, no hace nada
+            if (!isHotMode && count < 5) return;
+
+            isHotMode = !isHotMode;
+            document.body.style.backgroundImage = isHotMode ? "url('degradado.png')" : "none";
+            document.body.style.backgroundSize = "cover";
+            document.getElementById('hot-icon').innerText = isHotMode ? '⚡' : (count >= 5 ? '🔥' : '🔒');
+            document.getElementById('dots-container').classList.toggle('dots-hidden', isHotMode);
             currentChallenges = isHotMode ? [...hotChallenges] : [...challenges];
             drawWheel();
-
-            if (isHotMode) {
-                // CAMBIO A IMAGEN DEGRADADO.PNG
-                body.style.backgroundImage = "url('degradado.png')";
-                body.style.backgroundSize = "cover";
-                body.style.backgroundPosition = "center";
-                body.style.backgroundColor = "#1a0000";
-                document.getElementById('hot-icon').innerText = '⚡';
-                if(dotsContainer) dotsContainer.classList.add('dots-hidden');
-            } else {
-                body.style.backgroundImage = "none";
-                body.style.backgroundColor = "var(--black)";
-                document.getElementById('hot-icon').innerText = '🔥';
-                if(dotsContainer) dotsContainer.classList.remove('dots-hidden');
-            }
-            updateUI();
         }
 
         function showScreen(type) {
             document.getElementById('history-screen').classList.toggle('active', type === 'history');
         }
 
-        function devReset() {
-            const pin = prompt("Código Desarrollador:");
-            if (pin === "3006") {
-                localStorage.clear();
-                // TRUCO ANTI-CACHÉ: Recarga con parámetro aleatorio
-                window.location.href = window.location.origin + window.location.pathname + "?r=" + Math.random();
-            }
-        }
-
-        window.onload = function() {
-            const welcome = localStorage.getItem('welcomeShown');
-            if (!welcome) {
-                const modal = document.getElementById('welcome-modal');
-                modal.style.display = 'flex';
-                document.getElementById('start-game-btn').onclick = function() {
-                    modal.style.display = 'none';
-                    localStorage.setItem('welcomeShown', 'true');
-                };
-            }
-            drawWheel();
-            updateUI();
-        };
+        window.onload = () => { drawWheel(); updateUI(); };
     </script>
 </body>
 </html>
