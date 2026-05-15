@@ -328,19 +328,11 @@
 
         // --- NUEVA LÓGICA DE RESET PARA DESARROLLADOR (CÓDIGO: 3006) ---
         function devReset() {
-            const pin = prompt("Introduce el código de desarrollador para resetear la app:");
+            const pin = prompt("Introduce el código de desarrollador:");
             if (pin === "3006") {
                 history = [];
-                localStorage.removeItem('rouletteHistory');
-                isHotMode = false;
-                currentChallenges = [...challenges];
-                document.body.style.background = "#0a0a0a";
-                document.getElementById('hot-icon').innerText = '🔒';
-                document.getElementById('hot-mode-btn').classList.add('disabled');
-                drawWheel();
-                updateUI();
-                location.reload();
-                alert("Sistema reiniciado con éxito, Mario.");
+                localStorage.clear(); // Esto borra el historial Y la bienvenida
+                location.reload();    // Recargamos para que el modal de bienvenida vuelva a saltar
             } else {
                 alert("Código incorrecto.");
             }
