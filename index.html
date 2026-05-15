@@ -339,11 +339,28 @@
                 document.getElementById('hot-mode-btn').classList.add('disabled');
                 drawWheel();
                 updateUI();
+                location.reload();
                 alert("Sistema reiniciado con éxito, Mario.");
             } else {
                 alert("Código incorrecto.");
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Comprobamos si ya se ha mostrado la bienvenida
+            const hasBeenWelcomed = localStorage.getItem('welcomeShown');
+
+            if (!hasBeenWelcomed) {
+                const welcomeModal = document.getElementById('welcome-modal');
+                welcomeModal.classList.remove('d-none');
+
+                document.getElementById('start-game-btn').onclick = () => {
+                    welcomeModal.classList.add('d-none');
+                    // Guardamos que ya lo ha visto para siempre
+                    localStorage.setItem('welcomeShown', 'true');
+                };
+            }
+        });
 
         drawWheel();
         updateUI();
@@ -356,6 +373,20 @@
             <p style="color: white; margin: 20px 0;">Este reto ya lo habéis hecho anteriormente. ¿Queréis repetirlo o probar suerte de nuevo?</p>
             <button id="accept-repeat" class="btn btn-outline-warning m-2">Aceptar Repetido</button>
             <button id="re-spin" class="btn btn-warning m-2">Volver a tirar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Bienvenida para María -->
+    <div id="welcome-modal" class="d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; z-index: 20000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 25px;">
+        <div style="border: 2px solid var(--gold); padding: 40px 20px; background: #111; border-radius: 20px; max-width: 450px; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);">
+            <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.8rem; margin-bottom: 25px;">Hola Maria,</h2>
+            <p style="color: white; line-height: 1.6; font-size: 1.1rem; margin-bottom: 30px; font-family: 'Montserrat', sans-serif;">
+                Digamos que nos gusta jugar, a muchas cosas... <br><br>
+                Podría decirse que algunas veces rozamos la ludopatía, ya sabes, tarde de ruletita una vez al año no hace daño... <br><br>
+                Bueno, supongo que esta es la ruleta en la que más podemos ganar y en la que no hay nada que perder...<br><br>
+                ¿A disfrutar no?
+            </p>
+            <button id="start-game-btn" class="btn btn-warning" style="padding: 12px 35px; font-weight: bold; font-size: 1.1rem; border-radius: 30px;">¡A jugar!</button>
         </div>
     </div>
 
