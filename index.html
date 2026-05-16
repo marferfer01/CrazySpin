@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ruleta Caliente v1.2</title>
+    <title>Ruleta Caliente v1.3</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
@@ -64,27 +64,35 @@
             background-color: var(--dark-gray); border-top: 1px solid #333; 
             display: flex; justify-content: space-around; 
             padding: 10px 0 calc(env(safe-area-inset-bottom) + 15px) 0; 
-            z-index: 50; /* Por debajo de las pantallas */
+            z-index: 50;
         }
 
         .nav-item { color: var(--gold); text-decoration: none; font-size: 0.75rem; text-align: center; cursor: pointer; flex: 1; }
         .nav-item span { font-size: 1.5rem; display: block; }
         .nav-item.disabled { color: #444 !important; opacity: 0.4; cursor: default; }
 
-        /* PANTALLAS (HISTORIAL) */
+        /* PANTALLAS MODALES (HISTORIAL Y AJUSTES) */
         .screen { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; padding: 25px; 
-            background: var(--black); z-index: 2000; /* Siempre arriba al activarse */
+            background: var(--black); z-index: 2000; 
+            overflow-y: auto;
         }
         .screen.active { display: block; }
 
-        #history-list-container {
-            height: 65vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-            margin-top: 15px; border-top: 1px solid #333;
+        .list-container {
+            height: 50vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            margin-top: 15px; border: 1px solid #333; padding: 10px; border-radius: 8px;
         }
 
         .dots-hidden { visibility: hidden; }
+        
+        /* Estilos CRUD */
+        .challenge-item {
+            background: #111; border: 1px solid #222; padding: 10px; 
+            margin-bottom: 8px; border-radius: 6px; display: flex; 
+            justify-content: space-between; align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +114,7 @@
 
         <nav class="bottom-nav">
             <div class="nav-item" onclick="showScreen('history')"><span>📋</span>Historial</div>
+            <div class="nav-item" onclick="showScreen('settings')"><span>⚙️</span>Ajustes</div>
             <div id="hot-mode-btn" class="nav-item disabled" onclick="toggleHotMode()"><span id="hot-icon">🔒</span>Modo Hot</div>
         </nav>
     </div>
@@ -113,26 +122,70 @@
     <!-- Pantalla Historial -->
     <div id="history-screen" class="screen">
         <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.5rem; text-align: center;">Nuestro Historial</h2>
-        <div id="history-list-container"></div>
-        <div class="text-center mt-3">
+        <div id="history-list-container" class="list-container"></div>
+        <div class="text-center mt-4">
             <button onclick="showScreen('home')" class="btn btn-outline-warning">Volver</button>
         </div>
     </div>
 
-    <script>
-        const challenges = [{short:"Nata",full:"Nata por el cuerpo"},{short:"Roles 👮",full:"¿Roleamos?"},{short:"Vendaje",full:"Vendaje en los ojos"},{short:"Aceite",full:"Masaje con aceite"},{short:"Mandas 👑",full:"Hoy tu mandas"},{short:"Ducha 💧",full:"Ducha... Jejeje"},{short:"Streptease 🕺",full:"Streptease Mario"},{short:"Streptease 💃",full:"Streptease Maria"},{short:"Besos ",full:"Matarte a besos"},{short:"Sin manos 🚫",full:"Prohibido usar las manos"},{short:"Silla ",full:"Castigada en una silla"},{short:"Permiso ",full:"Pide permiso a todo"},{short:"Hielo 🧊",full:"Hielo"}];
-        const hotChallenges = [{short:"Atada ⛓️",full:"Totalmente atada"},{short:"Toys 🧸",full:"Juguetes al fallo"},{short:"Duro 🥵",full:"Bien duro"},{short:"Traje",full:"Trajecito bien sexy"},{short:"Squirt 💦",full:"Squirt hasta morir"},{short:"Esclavo 🐶",full:"Esclava/Esclavo"}];
+    <!-- Pantalla Ajustes / CRUD -->
+    <div id="settings-screen" class="screen">
+        <h2 style="color: var(--gold); font-family: 'Great Vibes'; font-size: 2.5rem; text-align: center;">Gestión de Retos</h2>
+        
+        <!-- Selector de Modo -->
+        <div class="d-flex justify-content-center gap-2 my-3">
+            <button id="btn-edit-normal" class="btn btn-warning btn-sm" onclick="switchCrudMode('normal')">Retos Normales</button>
+            <button id="btn-edit-hot" class="btn btn-outline-danger btn-sm" onclick="switchCrudMode('hot')">🔒 Retos Hot</button>
+        </div>
 
-        let currentChallenges = [...challenges];
+        <!-- Formulario Añadir -->
+        <div class="p-2 bg-dark rounded mb-3">
+            <div class="row g-2">
+                <div class="col-4">
+                    <input type="text" id="input-short" class="form-control form-control-sm bg-secondary text-white" placeholder="Corto (Ruleta)">
+                </div>
+                <div class="col-6">
+                    <input type="text" id="input-full" class="form-control form-control-sm bg-secondary text-white" placeholder="Reto Completo">
+                </div>
+                <div class="col-2">
+                    <button onclick="addChallenge()" class="btn btn-success btn-sm w-100">Añadir</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista editable -->
+        <div id="crud-list-container" class="list-container"></div>
+
+        <div class="text-center mt-4 d-flex justify-content-around">
+            <button onclick="showScreen('home')" class="btn btn-outline-warning">Guardar y Volver</button>
+            <button onclick="devReset()" class="btn btn-outline-danger btn-sm" style="opacity: 0.5;">Reset Base</button>
+        </div>
+    </div>
+
+    <script>
+        // Listas por defecto si no hay nada guardado
+        const defaultChallenges = [{short:"Nata",full:"Nata por el cuerpo"},{short:"Roles 👮",full:"¿Roleamos?"},{short:"Vendaje",full:"Vendaje en los ojos"},{short:"Aceite",full:"Masaje con aceite"},{short:"Mandas 👑",full:"Hoy tu mandas"},{short:"Ducha 💧",full:"Ducha... Jejeje"},{short:"Streptease 🕺",full:"Streptease Mario"},{short:"Streptease 💃",full:"Streptease Maria"},{short:"Besos ",full:"Matarte a besos"},{short:"Sin manos 🚫",full:"Prohibido usar las manos"},{short:"Silla ",full:"Castigada en una silla"},{short:"Permiso ",full:"Pide permiso a todo"},{short:"Hielo 🧊",full:"Hielo"}];
+        const defaultHotChallenges = [{short:"Atada ⛓️",full:"Totalmente atada"},{short:"Toys 🧸",full:"Juguetes al fallo"},{short:"Duro 🥵",full:"Bien duro"},{short:"Traje",full:"Trajecito bien sexy"},{short:"Squirt 💦",full:"Squirt hasta morir"},{short:"Esclavo 🐶",full:"Esclava/Esclavo"}];
+
+        // Carga inicial desde LocalStorage o por defecto
+        let challenges = JSON.parse(localStorage.getItem('customChallenges')) || defaultChallenges;
+        let hotChallenges = JSON.parse(localStorage.getItem('customHotChallenges')) || defaultHotChallenges;
         let history = JSON.parse(localStorage.getItem('rouletteHistory')) || [];
+        
+        let currentChallenges = [...challenges];
         let isHotMode = false;
         let currentRotation = 0;
+        let activeCrudMode = 'normal'; // 'normal' o 'hot'
 
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
 
         function drawWheel() {
             const numSegments = currentChallenges.length;
+            if(numSegments === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
             const angle = 2 * Math.PI / numSegments;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             currentChallenges.forEach((obj, i) => {
@@ -143,12 +196,13 @@
                 ctx.fillStyle = i % 2 === 0 ? "#0a0a0a" : "#1a1a1a";
                 ctx.fill(); ctx.strokeStyle = "#D4AF37"; ctx.stroke();
                 ctx.rotate(angle / 2); ctx.fillStyle = "#D4AF37";
-                ctx.font = "bold 24px Montserrat"; ctx.textAlign = "right";
-                ctx.fillText(obj.short, 250, 10); ctx.restore();
+                ctx.font = "bold 20px Montserrat"; ctx.textAlign = "right";
+                ctx.fillText(obj.short, 250, 7); ctx.restore();
             });
         }
 
         function spin() {
+            if (currentChallenges.length === 0) return alert("¡Añade algún reto primero!");
             const btn = document.getElementById('spin-button');
             if (btn.disabled) return;
             btn.disabled = true;
@@ -192,7 +246,7 @@
             const histCont = document.getElementById('history-list-container');
             histCont.innerHTML = history.slice().reverse().map(h => `
                 <div style="border-bottom:1px solid #333; padding:12px; display:flex; justify-content:space-between; font-size: 0.8rem">
-                    <span style="opacity:0.6">${h.date.split(',')[1]}</span>
+                    <span style="opacity:0.6">${h.date.split(' ')[1] || h.date}</span>
                     <span style="color:var(--gold); font-weight:bold">${h.isHot ? '🔥 ' : ''}${h.challenge}</span>
                 </div>`).join('');
         }
@@ -201,7 +255,6 @@
             const spinsSinceHot = [...history].reverse().findIndex(h => h.isHot);
             const count = spinsSinceHot === -1 ? history.length : spinsSinceHot;
             
-            // Bloqueo de seguridad: Si no hay 5 tiradas, no hace nada
             if (!isHotMode && count < 5) return;
 
             isHotMode = !isHotMode;
@@ -215,6 +268,106 @@
 
         function showScreen(type) {
             document.getElementById('history-screen').classList.toggle('active', type === 'history');
+            document.getElementById('settings-screen').classList.toggle('active', type === 'settings');
+            if (type === 'home') {
+                // Al volver a la home, recargamos la ruleta por si hubo cambios en la lista activa
+                currentChallenges = isHotMode ? [...hotChallenges] : [...challenges];
+                drawWheel();
+            } else if (type === 'settings') {
+                renderCrudList();
+            }
+        }
+
+        /* --- SISTEMA CRUD (CREAR, MODIFICAR, BORRAR) --- */
+
+        function switchCrudMode(mode) {
+            if (mode === 'hot' && activeCrudMode !== 'hot') {
+                const pass = prompt("Introduce el código de seguridad para acceder a la lista Hot:");
+                if (pass !== "3006") {
+                    alert("Código incorrecto. Acceso denegado.");
+                    return;
+                }
+            }
+            activeCrudMode = mode;
+            
+            // Estilos de pestañas
+            document.getElementById('btn-edit-normal').className = mode === 'normal' ? "btn btn-warning btn-sm" : "btn btn-outline-warning btn-sm";
+            document.getElementById('btn-edit-hot').className = mode === 'hot' ? "btn btn-danger btn-sm" : "btn btn-outline-danger btn-sm";
+            
+            renderCrudList();
+        }
+
+        function renderCrudList() {
+            const container = document.getElementById('crud-list-container');
+            const targetList = activeCrudMode === 'normal' ? challenges : hotChallenges;
+            
+            if(targetList.length === 0) {
+                container.innerHTML = `<p class="text-center opacity-50 mt-4">No hay retos en esta lista.</p>`;
+                return;
+            }
+
+            container.innerHTML = targetList.map((item, index) => `
+                <div class="challenge-item">
+                    <div style="flex: 1; display: flex; gap: 10px;">
+                        <input type="text" value="${item.short}" class="form-control form-control-sm bg-dark text-white border-secondary" style="width: 30%" onchange="updateChallenge(${index}, 'short', this.value)">
+                        <input type="text" value="${item.full}" class="form-control form-control-sm bg-dark text-white border-secondary" style="width: 65%" onchange="updateChallenge(${index}, 'full', this.value)">
+                    </div>
+                    <button onclick="deleteChallenge(${index})" class="btn btn-sm btn-outline-danger ms-2">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function addChallenge() {
+            const shortIn = document.getElementById('input-short');
+            const fullIn = document.getElementById('input-full');
+            
+            if(!shortIn.value || !fullIn.value) return alert("Rellena ambos campos");
+
+            const newChallenge = { short: shortIn.value, full: fullIn.value };
+            
+            if (activeCrudMode === 'normal') {
+                challenges.push(newChallenge);
+                localStorage.setItem('customChallenges', JSON.stringify(challenges));
+            } else {
+                hotChallenges.push(newChallenge);
+                localStorage.setItem('customHotChallenges', JSON.stringify(hotChallenges));
+            }
+
+            shortIn.value = '';
+            fullIn.value = '';
+            renderCrudList();
+        }
+
+        function updateChallenge(index, field, value) {
+            if (activeCrudMode === 'normal') {
+                challenges[index][field] = value;
+                localStorage.setItem('customChallenges', JSON.stringify(challenges));
+            } else {
+                hotChallenges[index][field] = value;
+                localStorage.setItem('customHotChallenges', JSON.stringify(hotChallenges));
+            }
+        }
+
+        function deleteChallenge(index) {
+            if (activeCrudMode === 'normal') {
+                challenges.splice(index, 1);
+                localStorage.setItem('customChallenges', JSON.stringify(challenges));
+            } else {
+                hotChallenges.splice(index, 1);
+                localStorage.setItem('customHotChallenges', JSON.stringify(hotChallenges));
+            }
+            renderCrudList();
+        }
+
+        function devReset() {
+            if (confirm("¿Seguro que quieres borrar el historial y devolver las listas a su estado original?")) {
+                localStorage.clear();
+                challenges = [...defaultChallenges];
+                hotChallenges = [...defaultHotChallenges];
+                history = [];
+                activeCrudMode = 'normal';
+                window.location.reload();
+            }
         }
 
         window.onload = () => { drawWheel(); updateUI(); };
